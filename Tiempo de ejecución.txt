@@ -1,0 +1,48 @@
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'REMOTO_FEL_GF.ACT_GT_DE_CAJA_NEGRA_FELGEN_1', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.DATOS_CERTIFICACION', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.FEL_REENVIA_DTE_SAT', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.CORREOS_AUTOMATICOS_MAX_03', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'REM_FEL_POS_GF.CERTIFICA_FEL_POS_SP', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.CORREOS_AUTOMATICOS_4', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.GENERE_CORREOS_OPERACIONES_FEL', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'PRODUCCION.DEPURA_TABLAS_CARGA', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'PRODUCCION.BITACORAS_SAT_GUATEFAC', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'REMOTO_FEL_GF.FEL_ACTUALIZA_GF_EXPRESS_D', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.FEL_ENVIA_DTE_SAT_ANT_1', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.MONITOR_DTES_SIMP_ACUSE_DIA_A', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'SYS.ORA$AT_OS_OPT_SY_1770', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.GENERA_XML_ANULACIONES', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.LIMPIA_ACUSE_0', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.MONITOR_DTES_Y_MONTOS_AYER', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'SYS.AQ$_PLSQL_NTFN_445755037', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL."InsertaEn_t63_det_tipo_venta"', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'SYS.AQ$_PLSQL_NTFN_461413539', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.GENERA_DATOS_WMD', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.FEL_NOTIFICA_ACUSES', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.FEL_ENVIA_DTE_SAT_WS_ANU_0', force=>true);
+exec sys.dbms_scheduler.STOP_JOB(job_name=>'FEL.FEL_ENVIA_DTE_SAT_ANT_WM_0', force=>true);
+
+select name, open_mode, database_role from v$database; 
+SI LA BD ESTA BIEN ESTA EN MODO READ WRITE
+
+col owner format a20;
+col job_name format a30;
+select owner,job_name,session_id,running_instance from dba_scheduler_running_jobs
+where owner='FEL';
+
+SELECT NIT_EMISOR,SUM(DTES) DTES,SUM(PRODUCTOS) PRODUCTOS
+FROM (
+SELECT DE.NIT_EMISOR,DE.ID_DOCUMENTO,1 DTES,COUNT(*) PRODUCTOS
+  FROM T63_DOCUMENTOS_ELECTRONICOS DE,
+       T63_DET_DOCUMENTOS DD
+WHERE DE.NIT_EMISOR = '25584847'
+   AND DE.FECHA_DOCUMENTO = TRUNC(SYSDATE)
+   AND DE.PREIMPRESO IS NOT NULL
+   AND DE.RESOLUCION IS NULL
+   AND DE.FIRMA IS NOT NULL
+   AND DE.NIT_EMISOR = DD.NIT_EMISOR
+   AND DE.ID_DOCUMENTO = DD.ID_DOCUMENTO
+GROUP BY DE.NIT_EMISOR,DE.ID_DOCUMENTO
+)
+GROUP BY NIT_EMISOR
+HAVING SUM(PRODUCTOS) / SUM(DTES) > 50;
