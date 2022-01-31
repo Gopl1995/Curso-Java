@@ -87,7 +87,7 @@ public class ListaCircularSimple {
                         ultimo.siguiente = primero;
                     }else if(actual == ultimo){
                         anterior.siguiente = primero;
-                        ultimo = primero;
+                        ultimo = anterior;
                     }else{
                         anterior.siguiente = actual.siguiente;
                     }
